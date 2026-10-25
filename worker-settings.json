@@ -1,0 +1,39 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/K.Badhan/.claude/skills/boss/scripts/statusline.ps1"
+  },
+  "hooks": {
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/K.Badhan/.claude/skills/boss/scripts/notify-boss.ps1 -Kind needs-user"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "elicitation_dialog|elicitation_url_dialog",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/K.Badhan/.claude/skills/boss/scripts/notify-boss.ps1 -Kind needs-user"
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/K.Badhan/.claude/skills/boss/scripts/notify-boss.ps1 -Kind api-error"
+          }
+        ]
+      }
+    ]
+  }
+}
