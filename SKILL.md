@@ -57,11 +57,21 @@ and options `-Name`, `-Task`, `-Boss`, `-Root`, `-PermissionMode`, `-Model`.
 2. Write the brief to `.agents/briefs/<name>.md`: goal; the backlog story it belongs to; files and
    areas it owns (and what it must not touch); the big-picture context it needs from you; what
    other workers are doing at the same time; done criteria and how to verify; which docs to update.
-3. Run:
-   `"${CLAUDE_SKILL_DIR}/scripts/spawn-worker.sh" --name <name> --task "<short task for the status line>" --boss "<your session name>"`
+3. **Pick the model** for this worker from the complexity of its task, every time you spawn one
+   (and say which you picked and why in one line when you report the spawn):
+   - `claude-opus-5-5`: complex work: architecture or design decisions, hard or subtle debugging,
+     large or cross-cutting refactors, tricky algorithms/concurrency, security-sensitive changes,
+     ambiguous tasks that need judgment.
+   - `claude-sonnet-5-5`: routine work: well-specified implementation, small or localized changes,
+     tests, docs, config, mechanical edits, straightforward research or data wrangling.
+   When unsure, pick Opus for tasks where a mistake is costly or hard to spot, otherwise Sonnet. If
+   the user names a model, use that instead.
+4. Run:
+   `"${CLAUDE_SKILL_DIR}/scripts/spawn-worker.sh" --name <name> --task "<short task for the status line>" --boss "<your session name>" --model <model-id>`
    The worker starts in your current permission mode (recorded by this skill's hook), gets its own
    window colour (matching its status line), and the user stays on the window they were on.
-   Optional: `--permission-mode <mode>` to override the mode, `--model <model>`.
+   Always pass `--model` with the model chosen in step 3. Optional: `--permission-mode <mode>` to
+   override the mode.
    - **Windows**: the worker opens as a Windows Terminal tab. No `;` characters in the values
      (Windows Terminal treats `;` as a separator).
    - **Linux**: the script prints how to attach: workers live in the boss's tmux session if it runs
@@ -73,7 +83,7 @@ and options `-Name`, `-Task`, `-Boss`, `-Root`, `-PermissionMode`, `-Model`.
      login. A worker can be moved into a Claude background session (`claude agents` lists it as
      `background`); its window then reattaches to it. If windows are missing (`tmux attach` says
      no sessions), run `"${CLAUDE_SKILL_DIR}/scripts/open-windows.sh"` to reopen them.
-4. Track it with TaskCreate (one task per worker task).
+5. Track it with TaskCreate (one task per worker task).
 
 ## 4. While workers run
 Worker messages arrive as cross-session messages, first line tagged `DONE`, `QUESTION`, `BLOCKED`
