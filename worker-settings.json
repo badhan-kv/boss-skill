@@ -1,7 +1,7 @@
 {
   "statusLine": {
     "type": "command",
-    "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/K.Badhan/.claude/skills/boss/scripts/statusline.ps1"
+    "command": "bash \"$HOME/.claude/skills/boss/scripts/run-for-os.sh\" statusline"
   },
   "hooks": {
     "PermissionRequest": [
@@ -9,7 +9,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/K.Badhan/.claude/skills/boss/scripts/notify-boss.ps1 -Kind needs-user"
+            "command": "bash \"$HOME/.claude/skills/boss/scripts/run-for-os.sh\" notify-boss needs-user"
           }
         ]
       }
@@ -20,7 +20,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/K.Badhan/.claude/skills/boss/scripts/notify-boss.ps1 -Kind needs-user"
+            "command": "bash \"$HOME/.claude/skills/boss/scripts/run-for-os.sh\" notify-boss needs-user"
           }
         ]
       }
@@ -30,7 +30,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/K.Badhan/.claude/skills/boss/scripts/notify-boss.ps1 -Kind api-error"
+            "command": "bash \"$HOME/.claude/skills/boss/scripts/run-for-os.sh\" notify-boss api-error"
           }
         ]
       }

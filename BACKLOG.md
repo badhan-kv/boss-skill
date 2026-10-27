@@ -28,6 +28,9 @@ Two levels only for now (boss → workers). Workers may use ordinary in-session 
   section per agent; the boss owns `## boss`.
 - Per-project runtime state in `.agents/` (gitignored): `workers/<name>.json` registry,
   `briefs/<name>.md`, `events/`.
+- Change 2026-10-27: the skill now runs on Linux too (story 8) and both versions are one skill
+  folder (story 9). Previously (above) Windows only: PowerShell scripts, Windows Terminal tabs, and
+  hook/status line commands with the fixed path `C:/Users/K.Badhan/...`.
 
 ## Background and options weighed (2026-10-25)
 - Purpose: keep the coordinating session's context small (it holds the big picture only) so more
@@ -184,3 +187,41 @@ Two levels only for now (boss → workers). Workers may use ordinary in-session 
      Shift+Tab, the record changed to auto, worker-h spawned in auto. worker-g kept the mode it
      started with. (The earlier unexplained switch to auto in the worker-d test was the user
      changing a tab's mode.)
+8. [x] Linux version (tmux), built on the Linux machine 2026-10-26/27, recorded here 2026-10-27.
+   - `scripts/*.sh` mirror the PowerShell scripts (jq for JSON); each worker is a tmux window in
+     the boss's tmux session, or in a detached session `boss-<project>` when the boss is not in
+     tmux. Extras: `ssh-login.sh` (re-open and attach worker windows on SSH login),
+     `open-windows.sh`, `attach-loop.sh` (worker moved into a Claude background session keeps its
+     window), and `ssh-client/boss-ssh.ps1` + `tab-feed.sh` + `attach-tab.sh` (a Windows Terminal
+     tab per worker on the PC the user connects from over SSH).
+   - Tested over SSH in rounds 1-4 (`boss-test-temporary` folder): spawn, DONE reports, wrap-up,
+     close, two workers in parallel. Not yet tested: a boss in a local (non-SSH) terminal.
+   - Known: a boss started over SSH outside tmux ends when the SSH connection drops; the workers
+     keep running in tmux. Starting the boss inside tmux avoids it.
+9. [ ] One skill folder for Windows and Linux, with installers (requested 2026-10-27).
+   - Why: the two versions had drifted (the Linux-only wrap-up and spawn-again rules, the
+     unpublished Windows `wrapup` copy). One folder means a shared fix is made once.
+   - Clashing files and how they were merged: script names never clash (`.ps1` next to `.sh`).
+     `SKILL.md`: shared procedure written once, platform specifics marked Windows / Linux.
+     `worker-role.md`: "tab" → "window". `README.md`: shared part plus Windows and Linux sections.
+   - Hook and worker settings: one command string for both. Checked in the Claude Code docs
+     (hooks, status line): on Windows, hook and status line commands run through Git Bash when it
+     is installed, otherwise PowerShell; there is a per-hook `shell` field. Git for Windows is
+     therefore a requirement on Windows, and every command is
+     `bash "$HOME/.claude/skills/boss/scripts/run-for-os.sh" <script> [args]`, which runs
+     `<script>.ps1` under PowerShell when `$OSTYPE` is `msys`/`cygwin` and `<script>.sh` otherwise.
+     This also removes the fixed `C:/Users/K.Badhan` paths.
+   - `windows/` (SSH helpers for the PC) renamed `ssh-client/` so it is not mistaken for the
+     Windows version.
+   - Installers: `install.ps1` (winget installs Git for Windows and Windows Terminal if missing)
+     and `install.sh` (apt/dnf/pacman/brew installs tmux and jq if missing); both warn when
+     `claude` or the `wrapup` skill is missing, then copy the skill to `~/.claude/skills/boss`
+     keeping its `state/`. `state/` added to `.gitignore`.
+   - Verified on Linux 2026-10-27: `install.sh` installed over the old copy (result identical to
+     the repo, `state/roots.txt` kept); `bash -n` on all `.sh`; SKILL.md frontmatter and
+     `worker-settings.json` parse. The exact hook, status line and notify-boss command strings run
+     through `sh -c`: `.agents/boss.json` written with the mode, status line printed, event file
+     written (`wants to use Bash: ls`). Live smoke test: worker-i spawned in acceptEdits, wrote its
+     file, its status line rendered through `run-for-os.sh`, closed with `close-worker.sh` (window
+     gone). Not yet tested: the hook firing inside a live `/boss` session, and anything on Windows
+     (`install.ps1`, `run-for-os.sh` under Git Bash, a Windows boss with two workers).
