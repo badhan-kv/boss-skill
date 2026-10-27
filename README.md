@@ -18,8 +18,9 @@ The boss reads CHECKPOINT/BACKLOG, agrees the task split with you, then spawns w
 - **Managing**: talk to the boss. It answers workers' questions when it can and brings you the
   rest, including permission prompts (approve those in the named worker's tab).
 - **Mode**: workers start in the boss's permission mode at the time they are spawned.
-- **Finishing**: type `/wrapup` in the boss. It wraps up and closes every worker (each documents
-  its work first), then wraps itself up. Close the boss tab yourself.
+- **Finishing**: type `/wrapup` in the boss. All workers wrap up at the same time (each documents
+  its work first, editing only its own sections) and each is closed as it finishes; then the boss
+  wraps itself up. Close the boss tab yourself.
 
 The boss's status line shows a gold `BOSS` marker (from `~/.claude/statusline.ps1`).
 

@@ -52,6 +52,8 @@ Two levels only for now (boss → workers). Workers may use ordinary in-session 
   boss sends a WRAPUP instruction and the worker runs the `wrapup` skill itself. For that the
   `wrapup` skill no longer has `disable-model-invocation`; its description limits it to the user
   typing `/wrapup` or a boss's wrap-up instruction.
+  Changed 2026-10-27: see the change entry under story 5 (skill kept manual-only; workers read and
+  follow its "Team mode" section; all workers wrap up at once).
 - Permissions: a message from another session can never approve a permission prompt (by design),
   so the boss reports which worker tab needs the user. The user mostly runs auto mode, so prompts
   are rare.
@@ -101,6 +103,21 @@ Two levels only for now (boss → workers). Workers may use ordinary in-session 
      unchanged. `Notification` is kept only for elicitation dialogs.
 4. [x] Roles: `SKILL.md` (boss, `/boss <instructions>`), `worker-role.md`.
 5. [x] Wrap-up and close: `close-worker.ps1`, `list-workers.ps1`; `wrapup` skill team-mode section.
+   - Change 2026-10-27 (found in tests on the Linux machine): the published `wrapup` skill
+     (private-claude-skills repo) still had `disable-model-invocation: true` and no team-mode
+     section, so workers could not run it and wrapped up by hand. Its step 2 ("overwrite
+     CHECKPOINT.md") and step 1 (create `DECISIONS.md` if missing) would also clash with other
+     workers wrapping up at the same time. Previously (see "Background and options weighed",
+     Wrap-up bullet): the boss sent `WRAPUP: run the wrapup skill now`, and the skill was to be
+     model-invocable. Now `wrapup` keeps `disable-model-invocation` (only the user starts it) and
+     gets a "Team mode" section; WRAPUP and `worker-role.md` tell the worker to read
+     `~/.claude/skills/wrapup/SKILL.md` and follow it as a worker. Worker rules: Edit only (never a
+     whole-file Write) on shared files, own sections only, own `## <name>` CHECKPOINT section only,
+     no new shared files (notes without a fitting doc go to `.agents/wrapup/<name>.md`), never
+     commit. Boss rules: send WRAPUP to all workers at once (not one at a time, so wrap-up is fast
+     enough before shutting the computer down), close each as `DONE wrapup` arrives, then fold
+     worker notes in and write CHECKPOINT with only `## boss`. One-at-a-time wrap-up was weighed
+     and rejected as too slow.
 6. [x] End-to-end trial on a throwaway project (boss + 2 workers), user watching the tabs.
    - Result 2026-10-25: boss started with `/boss` in its own tab, found its name, started the
      watcher, added Stories 3-4 and spawned worker-m (manual mode) and worker-s in parallel.

@@ -78,14 +78,15 @@ or `UPDATE`. Reply with SendMessage, using the message's `from` value as `to`. T
 
 ## 5. Wrap up and close a worker
 Only you close workers; the user closes you.
-1. Send the worker: `WRAPUP: run the wrapup skill now (no commit), then reply DONE wrapup.`
+1. Send the worker: `WRAPUP: read ~/.claude/skills/wrapup/SKILL.md and follow it now with no argument, as a worker under its "Team mode" section, then reply DONE wrapup.`
 2. Wait for its `DONE wrapup` reply.
 3. Run `& "${CLAUDE_SKILL_DIR}/scripts/close-worker.ps1" -Name <name>`. This ends its session and
    closes its tab. Do not close a worker before its `DONE wrapup` unless the user says so.
 4. Fold its result into your `## boss` CHECKPOINT section, then remove its `## <name>` section.
 
-When the user runs `/wrapup` here, the wrapup skill's team-mode rules apply: wrap up and close every
-running worker first, then do your own wrap-up.
+When the user runs `/wrapup` here, follow the wrapup skill's "Team mode" section: send WRAPUP to
+every running worker at once (not one after another; the user may be waiting to shut down), close
+each as its `DONE wrapup` arrives, then do your own wrap-up.
 
 ## Documentation rules (team mode)
 - Workers document their own details under their own stories. You keep the backlog structure

@@ -50,6 +50,7 @@ After DONE, QUESTION or BLOCKED, wait for the boss's reply.
 - Never commit or push. The boss or the user does that.
 
 ## Wrap-up
-When {{BOSS}} sends WRAPUP, run the wrapup skill without arguments (no commit), following its
-worker rules, then send DONE wrapup with the list of files you updated. Then stop and wait; the
+When {{BOSS}} sends WRAPUP, read `~/.claude/skills/wrapup/SKILL.md` and follow it with no
+argument (no commit), as a worker under its "Team mode" section: other workers are wrapping up at
+the same time. Then send DONE wrapup with the list of files you updated. Then stop and wait; the
 boss closes your tab. Do not exit on your own.
