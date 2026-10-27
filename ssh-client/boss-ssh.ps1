@@ -12,10 +12,14 @@
 # Needs key-based SSH login (the background feed cannot type a password).
 # Usage: powershell -ExecutionPolicy Bypass -File boss-ssh.ps1 [user@host]
 param(
-    [string]$Target = 'kbadhan@ew-sim',
+    [string]$Target = 'user@host',  # set to your Linux machine's SSH target
     [string]$Window = '',  # Windows Terminal window for the worker tabs ('0' = the current one)
     [int]$BossTab = 0      # index of the boss tab in that window
 )
+if ($Target -eq 'user@host') {
+    Write-Error 'No SSH target: run boss-ssh.ps1 <user@host>, or set the default of -Target in this file.'
+    exit 1
+}
 
 $hasWt = [bool](Get-Command wt.exe -ErrorAction SilentlyContinue)
 
