@@ -23,8 +23,8 @@ model=$(jq -r '.model // empty' <<<"$w")
 export AGENT_NAME=$name AGENT_BOSS=$boss AGENT_ROOT=$root AGENT_SKILL_DIR=$SKILL_DIR
 printf '\033]2;%s\007' "$name"
 
-set_worker "$root" "$name" '.status="running" | .hostPid=$pid | .started=$t' \
-    --argjson pid $$ --arg t "$(date +%Y-%m-%dT%H:%M:%S)"
+set_worker "$root" "$name" '.status="running" | .hostPid=$pid | .hostStart=$st | .started=$t' \
+    --argjson pid $$ --arg st "$(pid_start $$)" --arg t "$(date +%Y-%m-%dT%H:%M:%S)"
 
 role=$(<"$SKILL_DIR/worker-role.md")
 role=${role//\{\{NAME\}\}/$name}

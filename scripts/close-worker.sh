@@ -27,13 +27,13 @@ if bg=$(bg_session_id "$root" "$name"); then
         echo "Worker '$name' (background session $bg) did not stop; check 'claude agents'." >&2
         exit 1
     fi
-    pid_alive "$hostpid" || { [ -n "$win" ] && tmux kill-window -t "$win" 2>/dev/null; }
+    worker_alive "$w" || { [ -n "$win" ] && tmux kill-window -t "$win" 2>/dev/null; }
     set_worker "$root" "$name" '.status="closed" | .ended=$t' --arg t "$(date +%Y-%m-%dT%H:%M:%S)"
     echo "Closed worker '$name' (background session $bg)."
     exit 0
 fi
 
-if ! pid_alive "$hostpid"; then
+if ! worker_alive "$w"; then
     set_worker "$root" "$name" '.status="closed"'
     echo "Worker '$name' is not running (already closed)."
     exit 0
@@ -41,8 +41,8 @@ fi
 
 # Stop only claude (the window script's child); run-worker.sh then exits cleanly and the window closes.
 pkill -TERM -P "$hostpid"
-for _ in $(seq 1 50); do pid_alive "$hostpid" || break; sleep 0.3; done
-if pid_alive "$hostpid"; then
+for _ in $(seq 1 50); do worker_alive "$w" || break; sleep 0.3; done
+if worker_alive "$w"; then
     pkill -KILL -P "$hostpid"; kill -TERM "$hostpid" 2>/dev/null
     [ -n "$win" ] && tmux kill-window -t "$win" 2>/dev/null
     set_worker "$root" "$name" '.status="closed" | .ended=$t' --arg t "$(date +%Y-%m-%dT%H:%M:%S)"

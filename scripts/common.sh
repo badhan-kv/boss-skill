@@ -63,6 +63,36 @@ ensure_agents_ignored() {
 
 pid_alive() { [ -n "$1" ] && [ "$1" != null ] && kill -0 "$1" 2>/dev/null; }
 
+# Kernel start time of PID (clock ticks since boot, /proc/PID/stat field 22). With the PID it
+# identifies one process, so a PID reused by a later process does not match.
+pid_start() {
+    local s
+    s=$(cat "/proc/$1/stat" 2>/dev/null) || return 1
+    s=${s##*) }                                       # drop "pid (comm) "; comm may hold spaces
+    awk '{ print $20 }' <<<"$s"                       # field 22 overall = 20th after comm
+}
+
+# worker_alive JSON: the worker's registered host process is still the same, running process.
+# Matches hostStart when recorded; older records without it fall back to comparing the process
+# start with the worker's "started" time (within 10 s).
+worker_alive() {
+    local pid st started et d
+    pid=$(jq -r '.hostPid // empty' <<<"$1")
+    pid_alive "$pid" || return 1
+    st=$(jq -r '.hostStart // empty' <<<"$1")
+    if [ -n "$st" ]; then
+        [ "$(pid_start "$pid")" = "$st" ]
+        return
+    fi
+    started=$(jq -r '.started // empty' <<<"$1")
+    [ -n "$started" ] || return 0
+    started=$(date -d "$started" +%s 2>/dev/null) || return 0
+    et=$(ps -o etimes= -p "$pid" 2>/dev/null | tr -d ' ')
+    [ -n "$et" ] || return 1
+    d=$(( $(date +%s) - et - started )); d=${d#-}
+    [ "$d" -le 10 ]
+}
+
 # A worker session can be moved into a Claude background session (e.g. by a /bg-style command);
 # its claude in the tmux window then exits. bg_session_id ROOT NAME prints the id of the live
 # background session with that exact name started under ROOT, or returns 1.

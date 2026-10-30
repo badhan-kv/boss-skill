@@ -225,3 +225,19 @@ Two levels only for now (boss → workers). Workers may use ordinary in-session 
      file, its status line rendered through `run-for-os.sh`, closed with `close-worker.sh` (window
      gone). Not yet tested: the hook firing inside a live `/boss` session, and anything on Windows
      (`install.ps1`, `run-for-os.sh` under Git Bash, a Windows boss with two workers).
+
+10. [ ] Worker liveness survives PID reuse (found 2026-10-30).
+   - Problem: `list-workers`, `close-worker` and `spawn-worker` treated a worker as alive when
+     its recorded `hostPid` existed. A closed worker's PID had been reused by the shell of the
+     tmux "home" window, so the list showed it alive and `close-worker` would have killed that
+     shell.
+   - Linux, done 2026-10-30: `run-worker.sh` records `hostStart` (kernel start time,
+     `/proc/<pid>/stat` field 22); `common.sh` `worker_alive` needs the PID and that start time
+     to match, and falls back to the record's `started` time (within 10 s) for older records;
+     the three scripts use it. Verified: fake records against a live process (matching start:
+     alive; wrong start, reused PID, dead PID: not alive), `close-worker.sh` on the reused-PID
+     record reported "not running" and left the process alone, `bash -n` on all changed
+     scripts; the real stale record (worker-smoke) now shows not alive.
+   - Windows: not done. Instructions in `WINDOWS_PID_REUSE_FIX.txt`.
+   - Also 2026-10-30: SKILL.md section 4 asks workers that start a training run for the
+     TensorBoard details (port, tunnel, link) and has the boss relay one combined list.

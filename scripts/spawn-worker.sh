@@ -27,7 +27,7 @@ brief="$root/.agents/briefs/$name.md"
 command -v tmux >/dev/null || { echo "tmux is required" >&2; exit 1; }
 
 if existing=$(read_worker "$root" "$name"); then
-    if [ "$(jq -r .status <<<"$existing")" = running ] && pid_alive "$(jq -r .hostPid <<<"$existing")"; then
+    if [ "$(jq -r .status <<<"$existing")" = running ] && worker_alive "$existing"; then
         echo "Worker '$name' is already running (host PID $(jq -r .hostPid <<<"$existing"))" >&2; exit 1
     fi
 fi

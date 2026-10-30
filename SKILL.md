@@ -105,6 +105,13 @@ or `UPDATE`. Reply with SendMessage, using the message's `from` value as `to`. T
   and your tasks.
 - Status of all workers: `"${CLAUDE_SKILL_DIR}/scripts/list-workers.sh"`.
 - Keep the user posted briefly: what is running, what finished, what needs them.
+- **Training runs:** when a worker starts a training run, its report must include how to watch
+  it: run folder, TensorBoard port (one TensorBoard per log root, bound to 127.0.0.1), the SSH
+  tunnel command for the user's PC (`ssh -L <port>:localhost:<port> <host>`) and the link
+  (`http://localhost:<port>`), checked with `curl` first. Put that line in the brief of any
+  worker that may start a run, and relay the link to the user in the same update that reports
+  the start. With several runs, give one combined list (port -> log root -> run folders), so the
+  user does not get a different link per worker.
 
 ## 5. Wrap up and close a worker
 Only you close workers; the user closes you. Closing all workers does not end boss mode: when the
